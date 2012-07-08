@@ -1,0 +1,64 @@
+//
+//  MsgCellView.m
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-17.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import "MsgCellView.h"
+
+
+@implementation MsgCellView
+
+@synthesize authorLabel;
+@synthesize msgLabel;
+@synthesize imageView;
+@synthesize timeLabel;
+@synthesize authorHead;
+@synthesize replyView;
+@synthesize replyMsg;
+@synthesize replyImageView;
+@synthesize indexPath;
+@synthesize parentController;
+
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        // Initialization code.
+
+		
+    }
+    return self;
+}
+
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state.
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+- (void)handleLongPress:(UILongPressGestureRecognizer *)recognizer {
+    switch (recognizer.state) {
+        case UIGestureRecognizerStateBegan:
+			[self.parentController replyMsgOnIndexPath:indexPath];
+            break;
+        case UIGestureRecognizerStateChanged:
+            // NSLog(@"!!!!handleLongPress: StateChanged !!!!!");
+            break;
+        case UIGestureRecognizerStateEnded:
+            // NSLog(@"!!!!handleLongPress: StateEnded !!!!!");
+            break;
+        default:
+            break;
+    }   
+}
+@end

@@ -1,0 +1,25 @@
+//
+//  MsgStore.h
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-8.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "MsgModel.h"
+
+@interface MsgStore : NSObject {
+    NSMutableArray* msgArray;
+	MsgModel* msgModel;
+}
+
+-(int) getMsgNum;
+
+-(NSDictionary *) getMsgAtIndex:(int) index;
+
+-(int) refresh;
+
+-(void) retrieveMore;
+
+@end

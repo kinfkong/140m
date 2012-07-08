@@ -1,0 +1,218 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <style type="text/css">
+        #main {
+            width:305px;
+			WORD-BREAK: break-all;
+        }
+
+        a {
+            color:blue;
+            text-decoration: none;
+        }
+
+        #origin {
+            font-size:17;
+            padding:10px;
+        }
+
+        #reply {
+            font-size:16;
+            background-color: #EEE;
+            border-width: 0px;
+            border-style: solid;
+            -moz-border-radius: 5px;
+            -khtml-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            padding:5px;
+			margin:10px 10px;
+        }
+        .user {
+            color:gray;
+        }
+
+        .image {
+            width:240px;
+			-moz-box-shadow :5px 5px 6px #666;
+            -webkit-box-shadow :5px 5px 6px #666;
+            box-shadow :5px 5px 6px #666;
+            filter:progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color="#cccccc");
+			
+            
+        }
+        .map {
+            width:160px;
+            -moz-box-shadow :5px 5px 6px #666;
+            -webkit-box-shadow :5px 5px 6px #666;
+            box-shadow :5px 5px 6px #666;
+            filter:progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color="#cccccc");
+        }
+
+        .imagediv {
+            text-align:center; 
+            margin:30px auto;
+
+        }
+
+        #replybutton {
+            background-color:gray;
+            text-align:center;
+            border-width: 0px;
+            border-style: solid;
+            -moz-border-radius: 15px;
+            -khtml-border-radius: 15px;
+            -webkit-border-radius: 15px;
+            border-radius: 15px;
+
+            margin:20px;
+            height:30px;
+            padding:2px;
+            color:white;
+            font-size:18;
+        }
+		
+		.imagediv img {
+			width:40px;
+
+			border: 1px solid #ddd;
+			padding: 7px;
+			background-color:#FFF;
+		}
+		
+		.msgfooter {
+			margin:10px auto;
+			color:gray;
+			font-size:12;
+		}
+    </style>
+	
+	<script language="javascript">
+	function addListener(element, type, expression, bubbling)
+	{
+		bubbling = bubbling || false;
+		if(window.addEventListener)       { // Standard
+			element.addEventListener(type, expression, bubbling);
+			return true;
+		} else if(window.attachEvent) { // IE
+			element.attachEvent('on' + type, expression);
+			return true;
+		} else return false;
+	}
+
+	var ImageLoader = function(url){
+		this.url = url;
+		this.image = null;
+		this.loadEvent = null;
+	};
+
+	ImageLoader.prototype = {
+		load:function(obj){
+            this.image = obj;//document.createElement('img');
+		var url = this.url;
+		var image = this.image;
+		var loadEvent = this.loadEvent;
+		addListener(this.image, 'load', function(e){
+			if(loadEvent != null){
+				loadEvent(url, image);
+			}
+		}, false);
+		this.image.src = this.url;
+		},
+		getImage:function(){
+			return this.image;
+			}
+	};
+
+	function loadImage(objId,urls,theWidth){
+		var loader = new ImageLoader(urls);
+	loader.loadEvent = function(url){
+	obj = document.getElementById(objId);
+	obj.style.width = theWidth;
+	//obj.src = url;
+	
+	}
+        obj = document.getElementById(objId);
+	loader.load(obj);
+	}
+	</script>
+</head>
+
+<body>
+    <div id="main">
+        <div id="origin">
+            <div class="msg">
+				<?kk $msg ?>
+				<!--
+                你好啊<a href="#">王景刚</a><span class="user">(@kkwang)</span>,麻烦用一下这个url. <a href="#">http://www.baidu.com</a>还有这个话题<a href="#">#test#</a><img src="http://mat1.gtimg.com/www/mb/images/face/0.gif"></img>
+				-->
+            </div>
+			<?kk if ($imageShow == "1") ?>
+            <div class="imagediv">
+                <a href="obanana:showfullimage:<?kk $imageId ?>"><img class="image" id="img1" src="loading.gif"></img></a>
+				<script language="javascript">
+					loadImage("img1","http://m.obanana.com/index.php/img/pic/<?kk $imageId ?>/460","240px");
+				</script>
+            </div>
+			<?kk endif ?>
+
+			<?kk if ($replyShow == "0") ?>
+            <div class="imagediv">
+            <a href="obanana:showmap:<?kk $lng ?>,<?kk $lat ?>"><img class="map" id="img2" src="loading.gif"></img></a>
+				<script language="javascript">
+					loadImage("img2","http://maps.google.com/maps/api/staticmap?center=<?kk $lat ?>,<?kk $lng ?>&size=160x160&zoom=12&sensor=false&markers=color:blue|<?kk $lat ?>,<?kk $lng ?>","160px");
+				</script>
+            </div>
+			<?kk endif ?>
+			<div class="msgfooter">
+			    <?kk if ($hasComefrom == "1") ?>
+				<span>来自:<?kk $fromLocation ?>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+				<?kk endif ?>
+				<span><?kk $timestamp ?></span>
+			</div>
+		</div>
+
+		<?kk if ($replyShow == "1") ?>
+        <div id="reply">
+			<div>
+				<a href="obanana:showuserinfo:<?kk $replyAuthorName ?>"><?kk $replyAuthorNick ?>&nbsp;&nbsp;<span class="user">(@<?kk $replyAuthorName ?>)</span></a>
+			</div>
+            <div class="msg">
+				<!--
+                我在测试<a href="#">http://t.cn/xxx</a>哈哈123,<span>456我在测</span>啊测啊测,kk啊，加油<a href="#">王景刚</a><span class="user">(@kkwang)</span>还是在测试
+				-->
+				<?kk $replyMsg ?>
+            </div>
+			
+			<?kk if ($replyImageShow == "1") ?>
+				<div class="imagediv">
+                <a href="obanana:showfullimage:<?kk $replyImageId ?>"><img class="image" id="img3" src="loading.gif"></img></a>
+				<script language="javascript">
+					loadImage("img3","http://m.obanana.com/index.php/img/pic/<?kk $replyImageId ?>/460","240px");
+				</script>
+				</div>
+			<?kk endif ?>
+
+            <div class="imagediv">
+            <a href="obanana:showmap:<?kk $lng ?>,<?kk $lat ?>"><img class="map" id="img4" src="loading.gif"></img></a>
+				<script language="javascript">
+					loadImage("img4","http://maps.google.com/maps/api/staticmap?center=<?kk $lat ?>,<?kk $lng ?>&size=160x160&zoom=12&sensor=false&markers=color:blue|<?kk $lat ?>,<?kk $lng ?>","160px");
+				</script>
+            </div>
+			
+			<div class="msgfooter">
+				<span><?kk $replyTimestamp ?> </span>
+			</div>
+        </div>
+        <?kk endif ?>
+		
+        <div id="footer">
+			<hr/>
+            <a href="obanana:showallreply:<?kk $replyMsgIdToShow ?>"><div id="replybutton">查看所有回复</div></a>
+        </div>
+    </div>
+</body>
+
+</html>

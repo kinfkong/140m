@@ -1,0 +1,57 @@
+//
+//  ComposeMsgController.h
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-5.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "CoreLocation/CLLocationManager.h"
+#import "CoreLocation/CLLocationManagerDelegate.h"
+
+#import "ImageAttachmentViewController.h"
+#import "MsgModel.h"
+
+#import "KKLocationManagerDelegate.h"
+
+
+@interface ComposeMsgController : UIViewController <UITextViewDelegate, 
+UIImagePickerControllerDelegate, 
+UINavigationControllerDelegate, UIActionSheetDelegate, KKLocationManagerDelegate> {
+	IBOutlet UILabel* showCharLeftLabel;
+	IBOutlet UITextView* mainTextView;
+	IBOutlet UIBarButtonItem* distributeButton;
+	IBOutlet UIButton* imageAttachmentButton;
+	IBOutlet UIButton* cameraButton;
+	IBOutlet UIButton* locationInfoButton;
+	
+	UIImage* imageAttachment;
+	
+	ImageAttachmentViewController * iavc;
+	UIImagePickerController* ipc;
+	CLLocation* locationInfo;
+	
+	CLLocationManager* locationManager;
+	MsgModel* msgModel;
+	
+	unsigned long long replyId;
+}
+
+-(IBAction)dismiss:(id)sender;
+-(void) addImageAttachement:(UIImage *) image;
+-(IBAction) showImagePickupMenu:(id) sender;
+-(IBAction) showImageDetail:(id) sender;
+-(IBAction) sendMsg:(id) sender;
+
+-(void) removeImageAttachement;
+
+@property (nonatomic, retain) IBOutlet UILabel* showCharLeftLabel;
+@property (nonatomic, retain) IBOutlet UITextView* mainTextView;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem* distributeButton;
+@property (nonatomic, retain) IBOutlet UIButton* imageAttachmentButton;
+@property (nonatomic, retain) IBOutlet UIButton* locationInfoButton;
+@property (nonatomic, retain) IBOutlet UIButton* cameraButton;
+@property (nonatomic, retain) IBOutlet UIImage* imageAttachment;
+@property (nonatomic, retain) CLLocation* locationInfo;
+@end

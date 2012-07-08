@@ -1,0 +1,17 @@
+//
+//  MsgTableController.h
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-2.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ComposeMsgController.h"
+
+@interface MsgTableController : UIViewController {
+	ComposeMsgController* composeController;
+}
+
+-(IBAction) showDetail;
+@end

@@ -1,0 +1,27 @@
+//
+//  MsgListController.h
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-12.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "EGORefreshTableHeaderView.h"
+#import "MsgStore.h"
+#import "MsgCellView.h"
+
+@interface MsgListController : UIViewController  <UITableViewDataSource, UITableViewDelegate, EGORefreshTableHeaderDelegate> {
+	IBOutlet UITableView* tableView;
+	EGORefreshTableHeaderView* _refreshHeaderView;
+	BOOL _reloading;
+	MsgStore* msgStore;
+	
+}
+-(CGFloat) getReplyViewHeight:(NSDictionary *) replyMsg cellView:(MsgCellView *) cellView;
+-(void) replyMsgOnIndexPath:(NSIndexPath*) indexPath;
+
+@property(nonatomic, retain) IBOutlet UITableView* tableView;
+
+
+@end

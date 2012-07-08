@@ -1,0 +1,16 @@
+//
+//  MsgDetailView.h
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-12.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+
+@interface MsgDetailView : UIView {
+
+}
+
+@end

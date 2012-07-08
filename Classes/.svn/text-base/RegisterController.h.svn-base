@@ -1,0 +1,23 @@
+//
+//  RegisterController.h
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-2.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+
+@interface RegisterController : UIViewController <UIWebViewDelegate>  {
+	IBOutlet UIWebView* registerWebView;
+	UIActivityIndicatorView* activityIndicator;
+}
+
+
+-(IBAction)dismiss:(id)sender;
+
+
+@property (nonatomic, retain) IBOutlet UIWebView* registerWebView;
+
+@end

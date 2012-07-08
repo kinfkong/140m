@@ -1,0 +1,38 @@
+//
+//  MsgCellView.h
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-17.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MsgListController.h"
+
+
+@interface MsgCellView : UITableViewCell {
+	IBOutlet UILabel* authorLabel;
+	IBOutlet UILabel* msgLabel;
+	IBOutlet UIImageView* imageView;
+	IBOutlet UILabel* timeLabel;
+	IBOutlet UIImageView* authorHead;
+	IBOutlet UIView* replyView;
+	IBOutlet UILabel* replyMsg;
+	IBOutlet UIImageView* replyImageView;
+	
+	MsgListController* parentController;
+	NSIndexPath* indexPath;
+}
+
+@property(nonatomic, retain) IBOutlet UILabel* authorLabel;
+@property(nonatomic, retain) IBOutlet UILabel* msgLabel;
+@property(nonatomic, retain) IBOutlet UIImageView* imageView;
+@property(nonatomic, retain) IBOutlet UILabel* timeLabel;
+@property(nonatomic, retain) IBOutlet UIImageView* authorHead;
+@property(nonatomic, retain) IBOutlet UIView* replyView;
+@property(nonatomic, retain) IBOutlet UILabel* replyMsg;
+@property(nonatomic, retain) IBOutlet UIImageView* replyImageView;
+@property(nonatomic, retain) MsgListController* parentController;
+@property(nonatomic, retain) NSIndexPath* indexpath;
+
+@end

@@ -1,0 +1,26 @@
+//
+//  MsgModel.h
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-7.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+
+@interface MsgModel : NSObject {
+
+}
+
+-(BOOL) sendMsg:(NSDictionary*) data;
+
+-(NSArray *) getFrontPageMsgsWithError:(int *) error; 
+
+-(NSArray *) refreshWithBaseUrl:(NSString *) url LargerThanMsgId:(int) msgId maxNum:(int) maxNum error:(int *)error;
+
+-(NSArray *) retrieveMoreWithBaseUrl:(NSString *) url LessThanMsgId:(int) msgId maxNum:(int) maxNum error:(int *)error;
+
+-(NSArray *) retrieveMsgWithUrl:(NSString *) baseURL error:(int *) error;
+
+@end

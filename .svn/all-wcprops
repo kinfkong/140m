@@ -1,0 +1,113 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/obanana/!svn/ver/203/client/iphone/obanana
+END
+main.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/obanana/!svn/ver/41/client/iphone/obanana/main.m
+END
+obananaViewController.xib
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/obanana/!svn/ver/41/client/iphone/obanana/obananaViewController.xib
+END
+GPSIconOK.png
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/obanana/!svn/ver/106/client/iphone/obanana/GPSIconOK.png
+END
+obanana-Info.plist
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/obanana/!svn/ver/198/client/iphone/obanana/obanana-Info.plist
+END
+MsgTableController.xib
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/obanana/!svn/ver/106/client/iphone/obanana/MsgTableController.xib
+END
+CameraIcon.png
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/obanana/!svn/ver/106/client/iphone/obanana/CameraIcon.png
+END
+obanana_Prefix.pch
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/obanana/!svn/ver/41/client/iphone/obanana/obanana_Prefix.pch
+END
+GPSIcon.png
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/obanana/!svn/ver/106/client/iphone/obanana/GPSIcon.png
+END
+180.jpg
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/obanana/!svn/ver/236/client/iphone/obanana/180.jpg
+END
+MainWindow.xib
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/obanana/!svn/ver/41/client/iphone/obanana/MainWindow.xib
+END
+LoginController.xib
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/obanana/!svn/ver/106/client/iphone/obanana/LoginController.xib
+END
+MsgBar.png
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/obanana/!svn/ver/106/client/iphone/obanana/MsgBar.png
+END
+ComposeMsgController.xib
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/obanana/!svn/ver/106/client/iphone/obanana/ComposeMsgController.xib
+END
+MsgCellView.xib
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/obanana/!svn/ver/236/client/iphone/obanana/MsgCellView.xib
+END
+noimage.png
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/obanana/!svn/ver/236/client/iphone/obanana/noimage.png
+END
+ComposeImageIcon.png
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/obanana/!svn/ver/106/client/iphone/obanana/ComposeImageIcon.png
+END
+MsgListController.xib
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/obanana/!svn/ver/235/client/iphone/obanana/MsgListController.xib
+END
+RegisterController.xib
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/obanana/!svn/ver/106/client/iphone/obanana/RegisterController.xib
+END

@@ -1,0 +1,116 @@
+//
+//  MsgStore.m
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-8.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import "MsgStore.h"
+#import "MsgModel.h"
+#import <CoreLocation/CLLocation.h>
+
+@implementation MsgStore 
+
+-(id) init {
+   // create the msgArray
+   msgArray = [[NSMutableArray alloc] init];
+	msgModel = [[MsgModel alloc] init];
+   [self refresh];
+	return self;
+}
+
+-(void) dealloc {
+    [msgArray release];
+	[msgModel release];
+    [super dealloc];
+}
+
+-(int) getMsgNum {
+    return [msgArray count];
+}
+
+-(NSDictionary *) getMsgAtIndex:(int) index {
+    int num = [self getMsgNum];
+    if (index >= num) {
+        return nil;
+    }
+    return [msgArray objectAtIndex:index];
+}
+
+-(int) refresh {
+	// TODO, mock
+	NSString* url = @"http://mobile.obanana.com/index.php/frontpage/";
+	int error = 0;
+	
+    int num = [self getMsgNum];
+    int msgId = 0;
+    if (num == 0) {
+        msgId = 0;
+    } else {
+        NSDictionary* msgInfo = [msgArray objectAtIndex:0];
+        msgId = [[msgInfo objectForKey:@"id"] intValue];
+    }
+
+    NSArray* newMsgs = [msgModel refreshWithBaseUrl:url 
+        LargerThanMsgId:msgId maxNum:50 error:&error];
+    if (newMsgs == nil) {
+        // error, TODO
+        return 0;
+    }
+
+    int newNum = [newMsgs count];
+    if (newNum == 0) {
+        // nothing to reflesh
+        return 0;
+    }
+    
+    NSMutableArray* tmpMsgArray = [[NSMutableArray alloc] init];
+    num = [newMsgs count];
+    int totalNum = 0;
+    for (int i = 0; i < num; i++) {
+        [tmpMsgArray addObject:[newMsgs objectAtIndex:i]];
+        totalNum++;
+    }
+
+    num = [msgArray count];
+    for (int i = 0; i < num && totalNum < 50; i++) {
+        [tmpMsgArray addObject:[msgArray objectAtIndex:i]];
+        totalNum++;
+    }
+    
+    [msgArray release];
+    msgArray = tmpMsgArray;
+    return newNum;
+}
+
+-(void) retrieveMore {
+	NSString* url = @"http://mobile.obanana.com/index.php/frontpage/";
+	int error = 0;
+    int num = [self getMsgNum];
+    int msgId = 0;
+    if (num == 0) {
+        msgId = 0;
+    } else {
+        NSDictionary* msgInfo = [msgArray objectAtIndex:0];
+        msgId = [[msgInfo objectForKey:@"id"] intValue];
+    }
+
+    NSArray* newMsgs = [msgModel retrieveMoreWithBaseUrl:url 
+        LessThanMsgId:msgId maxNum:50 error:&error];
+    if (newMsgs == nil) {
+        // error, TODO
+        return;
+    }
+
+    if ([newMsgs count] == 0) {
+        // nothing to reflesh
+        return;
+    }
+
+    for (int i = 0; i < [newMsgs count]; i++) {
+        [msgArray addObject:[newMsgs objectAtIndex:i]];
+    }
+}
+
+@end

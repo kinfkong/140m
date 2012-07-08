@@ -1,0 +1,24 @@
+//
+//  UserModel.h
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-2.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+
+@interface UserModel : NSObject {
+	BOOL loginFlag;
+}
+
++(UserModel *) getInstance;
+
+-(BOOL) hasLogin;
+
+-(NSString*) getNickName;
+
+
+-(void) setCurrentUser:(NSString *)name;
+@end

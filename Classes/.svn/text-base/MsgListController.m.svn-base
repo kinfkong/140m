@@ -1,0 +1,305 @@
+//
+//  MsgListController.m
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-12.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import "MsgListController.h"
+#import "MsgModel.h"
+#import "MsgCellView.h"
+#import "UtilModel.h"
+
+
+@implementation MsgListController
+
+@synthesize tableView;
+
+
+
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+/*
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization.
+    }
+    return self;
+}
+*/
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad {
+    [super viewDidLoad];
+	if (_refreshHeaderView == nil) {
+        _refreshHeaderView = [[EGORefreshTableHeaderView alloc] initWithFrame:CGRectMake(0.0f, - tableView.bounds.size.height, tableView.frame.size.width, self.view.bounds.size.height)]; 
+        _refreshHeaderView.delegate = self; 
+        [tableView addSubview:_refreshHeaderView];
+    } 
+	
+    [_refreshHeaderView refreshLastUpdatedDate]; 
+	
+	msgStore = [[MsgStore alloc] init];
+	
+	
+}
+
+
+/*
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+*/
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+	[_refreshHeaderView release];
+	[msgStore release];
+    [super dealloc];
+}
+
+
+
+-(void) reloadTableViewDataSource {
+	_reloading = YES;
+}
+
+-(void) doneLoadingTableViewData {
+	_reloading = NO;
+	[_refreshHeaderView egoRefreshScrollViewDataSourceDidFinishedLoading:tableView];
+	
+}
+
+-(void) scrollViewDidScroll:(UIScrollView *)scrollView {
+	[_refreshHeaderView egoRefreshScrollViewDidScroll:scrollView];
+}
+
+-(void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+	[_refreshHeaderView egoRefreshScrollViewDidEndDragging:scrollView];
+}
+
+- (void)egoRefreshTableHeaderDidTriggerRefresh:(EGORefreshTableHeaderView*)view{ 
+    [self reloadTableViewDataSource]; 
+	int error = 0;
+
+	[msgStore refresh];
+	[tableView reloadData];
+    [self performSelector:@selector(doneLoadingTableViewData) withObject:nil afterDelay:0.0]; 
+}
+
+- (BOOL)egoRefreshTableHeaderDataSourceIsLoading:(EGORefreshTableHeaderView*)view{ 
+    return _reloading; 
+} 
+- (NSDate*)egoRefreshTableHeaderDataSourceLastUpdated:(EGORefreshTableHeaderView*)view{ 
+    return [NSDate date];     
+} 
+
+- (UITableViewCell *) tableView:(UITableView *)tableView1 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+	static NSString* identifier = @"MsgCellViewID";
+	MsgCellView* msgCell = (MsgCellView *) [tableView1 dequeueReusableCellWithIdentifier:identifier];
+	if (msgCell == nil) {
+		   msgCell = [[[NSBundle mainBundle] loadNibNamed:@"MsgCellView" owner:self options:nil] lastObject];
+		UILongPressGestureRecognizer *longPressGR = 
+        [[UILongPressGestureRecognizer alloc] initWithTarget:msgCell 
+													  action:@selector(handleLongPress:)];
+        longPressGR.minimumPressDuration = 2;
+        [msgCell addGestureRecognizer:longPressGR];
+        [longPressGR release];
+		msgCell.parentController = self;
+	}
+	
+	msgCell.indexpath = indexPath;
+	
+	NSDictionary* data = [msgStore getMsgAtIndex:[indexPath row]];
+	msgCell.authorLabel.text = [data objectForKey:@"user_nick"];
+	
+	msgCell.timeLabel.textAlignment = UITextAlignmentRight;
+	NSString* imageId = [data objectForKey:@"image_id"];
+	NSDictionary* replyMsg = [data objectForKey:@"reply_msg"];
+	NSString* date1 = [data objectForKey:@"create_time"];
+	NSString* date2 = [data objectForKey:@"query_time"];
+	msgCell.timeLabel.text = [[UtilModel getInstance] getReadableDateDiffBetweenDate1:date1 andDate2:date2];
+	// 圆角
+	msgCell.authorHead.layer.masksToBounds = YES;
+	msgCell.authorHead.layer.cornerRadius = 4.0;
+	msgCell.authorHead.layer.borderWidth = 0.0;
+	msgCell.authorHead.layer.borderColor = [[UIColor clearColor] CGColor];
+	
+	
+	// msg
+	CGFloat currentY = msgCell.authorLabel.frame.origin.y + msgCell.authorLabel.frame.size.height;
+	CGFloat currentX = msgCell.authorLabel.frame.origin.x;
+	
+	NSString* msg = [data objectForKey:@"msg"];
+	msgCell.msgLabel.numberOfLines = 0;
+	msgCell.msgLabel.lineBreakMode = UILineBreakModeWordWrap;
+	msgCell.msgLabel.text = msg;
+	
+	CGFloat msgheight = [msg sizeWithFont:msgCell.msgLabel.font
+			  constrainedToSize:CGSizeMake(msgCell.msgLabel.frame.size.width, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap].height;
+	currentY += 6;
+	msgCell.msgLabel.frame = CGRectMake(currentX, currentY, msgCell.msgLabel.frame.size.width, msgheight);
+	currentY += msgheight;
+	
+	BOOL hasImage = NO;
+	if (imageId == nil) {
+		msgCell.imageView.hidden = YES;
+	} else {
+		msgCell.imageView.hidden = NO;
+		hasImage = YES;
+		currentY += 8;
+		msgCell.imageView.frame = CGRectMake(currentX, currentY, 90, 90);
+		currentY += 90;
+		
+		msgCell.imageView.image = [UIImage imageNamed:@"noimage.png"];
+		NSMutableDictionary* imageInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:imageId, @"image_id", indexPath, @"indexPath", nil];
+		[NSThread detachNewThreadSelector:@selector(downloadImageForCellAtIndexPath:) toTarget:self withObject:imageInfo];
+	}
+	
+	if (replyMsg == nil || hasImage) {
+		//msgCell.replyView.frame = CGRectZero;
+		msgCell.replyView.hidden = YES;
+	} else {
+		msgCell.replyView.hidden = NO;
+		msgCell.replyView.layer.masksToBounds = YES;
+		msgCell.replyView.layer.cornerRadius = 5.0;
+		msgCell.replyView.layer.borderWidth = 1.0;
+		msgCell.replyView.layer.borderColor = [[UIColor colorWithRed:0 green:0 blue:0 alpha:0.1] CGColor];
+		
+		currentY += 8;
+		CGFloat replyHeight = [self getReplyViewHeight:replyMsg cellView:msgCell];
+		msgCell.replyView.frame = CGRectMake(currentX, currentY, 248, replyHeight);
+		currentY += replyHeight;
+		
+		CGFloat subY = 0;
+		CGFloat subX = msgCell.replyMsg.frame.origin.x;
+		
+		NSString* replyText = [replyMsg objectForKey:@"msg"];
+		msgCell.replyMsg.numberOfLines = 0;
+		msgCell.replyMsg.lineBreakMode = UILineBreakModeWordWrap;
+		
+		CGFloat replyTextHeight = [replyText sizeWithFont:msgCell.replyMsg.font
+		constrainedToSize:CGSizeMake(msgCell.replyMsg.frame.size.width, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap].height;
+		msgCell.replyMsg.frame = CGRectMake(subX, subY, msgCell.replyMsg.frame.size.width, replyTextHeight);
+		subY += replyTextHeight;
+		msgCell.replyMsg.text = replyText;
+		NSString* replyImageId = [replyMsg objectForKey:@"image_id"];
+		if (replyImageId == nil) {
+			msgCell.replyImageView.hidden = YES;
+		} else {
+			msgCell.replyImageView.hidden = NO;
+			subY += 8;
+			msgCell.replyImageView.frame = CGRectMake(subX, subY, 90, 90);
+			subY += 90;
+			
+			msgCell.imageView.image = [UIImage imageNamed:@"noimage.png"];
+			NSMutableDictionary* imageInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:replyImageId, @"image_id", indexPath, @"indexPath", "reply", "type", nil];
+			[NSThread detachNewThreadSelector:@selector(downloadImageForCellAtIndexPath:) toTarget:self withObject:imageInfo];
+		}
+		
+		
+	}
+	
+	return msgCell;
+}
+
+-(void) downloadImageForCellAtIndexPath:(NSMutableDictionary *) imageInfo {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	NSString* imageId = [imageInfo objectForKey:@"image_id"];
+	NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"http://mobile.obanana.com/index.php/img/pic/%@/160", imageId]];
+	UIImage* image = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
+	if (image != nil) {
+		[imageInfo setObject:image forKey:@"image"];
+		[self performSelectorOnMainThread:@selector(updateImageForCellAtIndexPath:) withObject:imageInfo waitUntilDone:YES];		
+	}
+
+	[pool release];
+}
+
+-(void)updateImageForCellAtIndexPath:(NSMutableDictionary *) imageInfo {
+	UIImage *image = [imageInfo objectForKey:@"image"];
+	NSIndexPath* indexPath = [imageInfo objectForKey:@"indexPath"];
+	MsgCellView *cell = (MsgCellView *) [tableView cellForRowAtIndexPath:indexPath];
+	if (cell == nil) {
+		return;
+	}
+	NSString* type = [imageInfo objectForKey:@"type"];
+	if (type != nil && [type isEqualToString:@"reply"]) {
+		cell.replyImageView.image = image;
+	} else {
+		cell.imageView.image = image;
+	}
+	
+	
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [msgStore getMsgNum];
+}
+
+-(CGFloat) getReplyViewHeight:(NSDictionary *) replyMsg cellView:(MsgCellView *) cellView{
+	CGFloat height = 0;
+	NSString* msg = [replyMsg objectForKey:@"msg"];
+	height += [msg sizeWithFont:cellView.replyMsg.font
+	constrainedToSize:CGSizeMake(cellView.replyMsg.frame.size.width, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap].height;
+	NSString* imageId = [replyMsg objectForKey:@"image_id"];
+	if (imageId != nil) {
+		height += 8;
+		height += 90;
+	}
+	height += 8;
+	return height;
+}
+
+-(CGFloat) tableView:(UITableView *) tableView heightForRowAtIndexPath:(NSIndexPath *) indexPath {
+	NSDictionary* data = [msgStore getMsgAtIndex:[indexPath row]];
+	NSString* imageId = [data objectForKey:@"image_id"];
+	NSDictionary* replyMsg = [data objectForKey:@"reply_msg"];
+	NSString* msg = [data objectForKey:@"msg"];
+	MsgCellView * sampleCell = [[[NSBundle mainBundle] loadNibNamed:@"MsgCellView" owner:self options:nil] lastObject];
+	CGFloat height = sampleCell.authorLabel.frame.origin.y + sampleCell.authorLabel.frame.size.height;
+	height += 6;
+	height += [msg sizeWithFont:sampleCell.msgLabel.font
+			 constrainedToSize:CGSizeMake(sampleCell.msgLabel.frame.size.width, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap].height;
+	if (imageId != nil) {
+		height += 8;
+		height += 90;
+	} else if (replyMsg != nil) {
+		height += 8;
+		height += [self getReplyViewHeight:replyMsg cellView:sampleCell];
+	}
+	if (height < 60) {
+		height = 60;
+	}
+	height += 10;
+	return height;
+}
+
+-(void) replyMsgOnIndexPath:(NSIndexPath *)indexPath {
+	[self presentModalViewController:composeController animated:YES];
+}
+
+
+
+@end

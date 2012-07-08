@@ -1,0 +1,88 @@
+//
+//  MsgModel.m
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-7.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import "MsgModel.h"
+#import "UtilModel.h"
+#import "ConfigModel.h"
+#import "XMLHelper.h"
+
+@implementation MsgModel
+
+
+-(BOOL) sendMsg:(NSDictionary*) data {
+	NSString* msgPostURL = [[ConfigModel getInstance] getMsgPostURL];
+	return [[UtilModel getInstance] postData:data toURL:msgPostURL];
+}
+
+
+-(NSArray *) getFrontPageMsgsWithError:(int *) error {
+	// the URL
+	NSString* baseURL = @"http://mobile.obanana.org/index.php/frontpage";
+	NSURL* url = [NSURL URLWithString:baseURL];
+	NSMutableURLRequest* urlRequest = [NSMutableURLRequest requestWithURL:url];
+	NSError* err = nil;
+	NSURLResponse* response = nil;
+	NSData* result = [NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&response error:&err];
+	//NSLog(@"%s", [result bytes]);
+	XMLHelper* helper = [[XMLHelper alloc] init]; 
+    NSDictionary* dict = [helper parseXML2Dictionary:result];
+    // dump the dict
+    [helper release];
+	return nil;
+}
+
+
+-(NSArray *) refreshWithBaseUrl:(NSString *) urlstr LargerThanMsgId:(int) msgId maxNum:(int) maxNum error:(int *)error {
+	NSString* baseURL = [NSString stringWithFormat:@"%@/refresh/%d/%d", urlstr, msgId, maxNum];
+	//NSLog(@"base_url:%@", baseURL);
+	return [self retrieveMsgWithUrl:baseURL error:error];
+}
+
+-(NSArray *) retrieveMoreWithBaseUrl:(NSString *) urlstr LessThanMsgId:(int) msgId maxNum:(int) maxNum error:(int *)error {
+	NSString* baseURL = [NSString stringWithFormat:@"%@/more/%d/%d", urlstr, msgId, maxNum];
+	return [self retrieveMsgWithUrl:baseURL error:error];
+}
+
+-(NSArray *) retrieveMsgWithUrl:(NSString *) baseURL error:(int *) error {
+	NSURL* url = [NSURL URLWithString:baseURL];
+	NSMutableURLRequest* urlRequest = [NSMutableURLRequest requestWithURL:url];
+	NSError* err = nil;
+	NSURLResponse* response = nil;
+	NSData* result = [NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&response error:&err];
+	if (result == nil) {
+		*error = -1;
+		return nil;
+	}
+	XMLHelper* helper = [[XMLHelper alloc] init];
+	NSDictionary* dict = [helper parseXML2Dictionary:result];
+	[helper release];
+	if (dict == nil) {
+		// invalid format
+		*error = -10;
+		return nil;
+	}
+	NSString* errorStr = [dict objectForKey:@"errno"];
+	if (errorStr == nil) {
+		*error = -10;
+		return nil;
+	}
+	*error = [errorStr intValue];
+	if (*error != 0) {
+		return nil;
+	}
+	
+	if ([[dict objectForKey:@"detail"] isKindOfClass:[NSString class]]) {
+		// empty
+		return [[[NSArray alloc] init] autorelease];
+	} else {
+		return [dict objectForKey:@"detail"];
+	}
+}
+
+
+@end

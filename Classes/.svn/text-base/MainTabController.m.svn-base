@@ -1,0 +1,109 @@
+    //
+//  MainTabController.m
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-2.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import "MainTabController.h"
+
+
+#import "NearByNavController.h"
+#import "ForyouNavController.h"
+#import "FollowNavController.h"
+#import "MoreNavController.h"
+#import "MsgTableController.h"
+
+
+@implementation MainTabController
+
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+/*
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization.
+    }
+    return self;
+}
+*/
+
+
+// Implement loadView to create a view hierarchy programmatically, without using a nib.
+- (void)loadView {
+	// create the tabBar
+	barController = [[UITabBarController alloc] init];
+
+	UINavigationController* frontPage = [[UINavigationController alloc] init];
+	frontPage.tabBarItem.title = @"主页";
+	
+	MsgTableController* msgTableController = [[MsgTableController alloc] init];
+	[frontPage pushViewController:msgTableController animated:NO];
+	
+	NearByNavController* nearBy = [[NearByNavController alloc] init];
+	nearBy.tabBarItem.title = @"附近";
+	
+	ForyouNavController* forYou = [[ForyouNavController alloc] init];
+	forYou.tabBarItem.title = @"提及";
+	
+	FollowNavController* follow = [[FollowNavController alloc] init];
+	follow.tabBarItem.title = @"关注";
+	
+	MoreNavController* more = [[MoreNavController alloc] init];
+	more.tabBarItem.title = @"更多";
+	
+	
+	barController.viewControllers = [NSArray arrayWithObjects:frontPage, 
+									 nearBy, forYou, follow, more, nil];
+	
+	self.view = barController.view;
+	
+	[frontPage release];
+	[nearBy release];
+	[forYou release];
+	[follow release];
+	[more release];
+	[msgTableController release];
+	
+}
+
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+/*
+- (void)viewDidLoad {
+    [super viewDidLoad];
+}
+ */
+
+
+/*
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+*/
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+	[barController release];
+    [super dealloc];
+}
+
+
+@end

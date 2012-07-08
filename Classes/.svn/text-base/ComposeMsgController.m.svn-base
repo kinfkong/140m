@@ -1,0 +1,235 @@
+    //
+//  ComposeMsgController.m
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-5.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import "ComposeMsgController.h"
+#import "ImageAttachmentViewController.h"
+#import "KKLocationManager.h"
+
+#import "UIImage+Resize.h"
+
+@implementation ComposeMsgController
+
+
+@synthesize showCharLeftLabel;
+@synthesize mainTextView;
+@synthesize distributeButton;
+@synthesize imageAttachmentButton;
+@synthesize cameraButton;
+@synthesize imageAttachment;
+@synthesize locationInfo;
+@synthesize locationInfoButton;
+
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+/*
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization.
+    }
+    return self;
+}
+*/
+
+/*
+// Implement loadView to create a view hierarchy programmatically, without using a nib.
+- (void)loadView {
+}
+*/
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad {
+    [super viewDidLoad];
+	replyId = 0;
+	locationInfo = nil;
+	[mainTextView becomeFirstResponder];
+	[imageAttachmentButton setHidden:YES];
+	imageAttachment = nil;
+	
+	
+	locationManager = [[[KKLocationManager alloc] init] autorelease];
+	if (![CLLocationManager locationServicesEnabled]) {
+		NSLog(@"Please open the GPS");
+	} 
+	
+	locationManager.delegate = self;
+	locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+	
+	locationManager.distanceFilter = 5.0f;
+	[locationManager startUpdatingLocation];
+	
+	msgModel = [[MsgModel alloc] init];
+}
+
+-(void) viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	[mainTextView becomeFirstResponder];
+}
+-(IBAction)dismiss:(id)sender {
+    [self.parentViewController dismissModalViewControllerAnimated:YES];
+}
+
+
+
+- (void)textViewDidChange:(UITextView *)textView {
+	int left = 140 - mainTextView.text.length;
+	self.showCharLeftLabel.text = [NSString stringWithFormat:@"%d", left];
+	if (left >= 0) {
+		self.showCharLeftLabel.textColor = [UIColor lightGrayColor];
+		distributeButton.enabled = TRUE;
+	} else {
+		self.showCharLeftLabel.textColor = [UIColor redColor];
+		distributeButton.enabled = FALSE;
+	}
+}
+
+
+/*
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+*/
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+	[iavc release];
+    [super dealloc];
+}
+
+
+-(IBAction) showImagePickupMenu:(id) sender {
+	UIActionSheet* menu = [[UIActionSheet alloc] initWithTitle:@"选择图片" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"图片库", @"摄像头", nil];
+	[menu showInView:self.view];
+	[menu release];
+}
+
+-(void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex {
+	if (buttonIndex == 0) {
+		ipc = [[UIImagePickerController alloc] init];
+		ipc.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+		ipc.delegate = self;
+		ipc.allowsEditing = NO;
+		[self presentModalViewController:ipc animated:YES];
+		//[ipc release];
+	} else if (buttonIndex == 1) {
+	
+	} else {
+	
+	}
+}
+
+-(void) imagePickerController:(UIImagePickerController *) picker didFinishPickingMediaWithInfo:(NSDictionary *) info {
+	UIImage* image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
+	float width = image.size.width;
+	float height = image.size.height;
+	float ratio = 1;
+	if (width > height && width > 800) {
+		ratio = 800.0 / width;
+	} else if (height > width && height > 800) {
+		ratio = 800.0 / height;
+	}
+	width *= ratio;
+	height *= ratio;
+	
+	image = [image resizedImageWithContentMode:UIViewContentModeScaleAspectFit bounds:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh];
+	
+	[self addImageAttachement:image];
+	[self dismissModalViewControllerAnimated:YES];
+	[ipc release];
+}
+
+
+-(void) addImageAttachement:(UIImage *) image {
+	imageAttachment = image;
+	[imageAttachmentButton setHidden:NO];
+	[cameraButton setEnabled:NO];
+	//imageAttachmentButton.imageView.image = imageAttachment;
+	[imageAttachmentButton setImage:imageAttachment forState:UIControlStateNormal];	
+}
+
+
+-(void) removeImageAttachement {
+	imageAttachment = nil;
+	[imageAttachmentButton setHidden:YES];
+	[cameraButton setEnabled:YES];
+	// [imageAttachmentButton setImage:imageAttachment forState:UIControlStateNormal];	
+}
+
+
+-(IBAction) showImageDetail:(id) sender {
+	iavc = [[ImageAttachmentViewController alloc] init];
+	iavc.image = self.imageAttachment;
+	[self presentModalViewController:iavc animated:YES];
+}
+
+-(IBAction) sendMsg:(id) sender {
+	NSMutableDictionary* data = [NSMutableDictionary dictionaryWithCapacity:16];
+	if (mainTextView.text != nil) {
+		[data setObject:mainTextView.text forKey:@"msg"];
+	}
+	
+	if (imageAttachment != nil) {
+		[data setObject:imageAttachment forKey:@"image"];
+	}
+	
+	if (locationInfo != nil) {
+		[data setObject:locationInfo forKey:@"location"];
+	}
+	//replyId = 1;
+	if (replyId != 0) {
+		[data setObject:[NSString stringWithFormat:@"%llu", replyId] forKey:@"reply"];
+	}
+	
+	[msgModel sendMsg:data];
+}
+
+-(void) addLocationInfo:(CLLocation *) newLocation {
+	if (locationInfo == nil) {
+		UIImage* locationOKImage = [UIImage imageNamed:@"GPSIconOK.png"];
+		[locationInfoButton setImage:locationOKImage forState:UIControlStateNormal];	
+	}
+	locationInfo = newLocation;
+}
+
+-(void) locationManager:(CLLocationManager *) manager
+	   didFailWithError:(NSError *) error {
+	NSLog(@"Location manager error: %@", [error description]);
+}
+
+-(void) locationManager:(CLLocationManager *)manager 
+		didUpdateToLocation:(CLLocation *) newLocation
+		fromLocation:(CLLocation*) fromLocation {
+	//NSLog(@"the new location: %@", newLocation);
+	[self addLocationInfo:newLocation];
+}
+
+-(void) updateLocation:(NSDictionary *) locationInfo1 {
+	NSString* type = [locationInfo1 objectForKey:@"type"];
+	CLLocationManager* manager = [locationInfo1 objectForKey:@"manager"];
+	if ([type isEqualToString:@"update"]) {
+		CLLocation* newLocation = [locationInfo1 objectForKey:@"newLocation"];
+		CLLocation* fromLocation = [locationInfo1 objectForKey:@"fromLocation"];
+		[self locationManager:manager didUpdateToLocation:newLocation fromLocation:fromLocation];
+	}
+}
+
+@end

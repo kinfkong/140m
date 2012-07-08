@@ -1,0 +1,44 @@
+//
+//  UserModel.m
+//  obanana
+//
+//  Created by Wang Jinggang on 11-6-2.
+//  Copyright 2011 tencent. All rights reserved.
+//
+
+#import "UserModel.h"
+
+
+@implementation UserModel
+
+static UserModel* instance = nil;
+
+-(id) init {
+	loginFlag = NO;
+	return self;
+}
+
++(UserModel *) getInstance {
+	if (instance == nil) {
+		instance = [[UserModel alloc] init];
+	}
+	return instance;
+}
+
+-(BOOL) hasLogin {
+	// TODO:
+	return YES;
+	// return loginFlag;
+}
+
+-(NSString*) getNickName {
+	// TODO:
+	return @"王景刚";
+}
+
+-(void) setCurrentUser:(NSString *)name {
+	// TODO:
+	loginFlag = YES;
+}
+
+@end
